@@ -3,7 +3,7 @@ import { AmazonContext } from '../context/AmazonContext'
 
 import Cards from './Cards'
 // import Featured from './Featured'
-// import Header from './Header'
+import Header from './Header'
 
 const styles = {
     container: `h-full w-full flex flex-col mt-[50px] pr-[50px] overflow-hidden`,
@@ -15,8 +15,8 @@ const styles = {
 const Main = () => {
   return (
     <div className={styles.container}>
-      {/* <Header />
-      <Featured /> */}
+      <Header />
+      {/* <Featured /> */}
       <Cards />
     </div>
   )
