@@ -14,7 +14,7 @@ import {
 import 'react-simple-hook-modal/dist/styles.css'
 import BuyModal from './BuyModal'
 
-const balance = "99"
+
 
 const Header = () => {
 
@@ -29,6 +29,7 @@ const Header = () => {
     }
 
     const { openModal, isModalOpen, closeModal } = useModal()
+    const { balance, buyTokens, getBalance } = useContext(AmazonContext)
 
     return (
         <div className={styles.container}>
