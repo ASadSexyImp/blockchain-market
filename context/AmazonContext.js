@@ -15,6 +15,8 @@ export const AmazonProvider = ({ children }) => {
     const [amountDue, setAmountDue] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [etherscanLink, setEtherscanLink] = useState('')
+    const [recentTransactions, setRecentTransactions] = useState([])
+    const [ownedItems, setOwnedItems] = useState([])
 
     const {
         authenticate,
@@ -37,40 +39,6 @@ export const AmazonProvider = ({ children }) => {
         isLoading: userDataIsLoading,
     } = useMoralisQuery('_User')
 
-    useEffect(() => {;
-        (async() => {
-            if (isAuthenticated) {
-                await getBalance()
-                const currentUsername = await user?.get('nickname')
-                setUsername(currentUsername)
-                const account = await user?.get('ethAddress')
-                setCurrentAccount(account)
-            }
-        })()
-    }, [isAuthenticated, user, username, currentAccount, getBalance])
-
-    useEffect(() => {;
-        (async() => {
-            if (isWeb3Enabled) {
-                await getAssets()
-            }
-        })()
-    }, [isWeb3Enabled, assetsData, assetsDataIsLoading])
-
-    const handleSetUsername = () => {
-        if (user) {
-            if (nickname) {
-                user.set('nickname', nickname)
-                user.save()
-                setNickname('')
-            } else {
-                console.log("Can't set empty nickname")
-            }
-        } else {
-            console.log('No user')
-        }
-    }
-
     const getBalance = async () => {
         try {
             if (!isAuthenticated || !currentAccount) return
@@ -89,6 +57,52 @@ export const AmazonProvider = ({ children }) => {
             }
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    const listenToUpdates = async () => {
+        let query = new Moralis.Query('EthTransactions')
+        let subscription = await query.subscribe()
+        subscription.on('update', async object => {
+            console.log('New Transactions')
+            console.log(object)
+            setRecentTransactions([object])
+        })
+    }
+
+    useEffect(() => {;
+        (async() => {
+            if (isAuthenticated) {
+                await getBalance()
+                await listenToUpdates()
+                const currentUsername = await user?.get('nickname')
+                setUsername(currentUsername)
+                const account = await user?.get('ethAddress')
+                setCurrentAccount(account)
+            }
+        })()
+    }, [isAuthenticated, user, username, currentAccount, getBalance, listenToUpdates])
+
+    useEffect(() => {;
+        (async() => {
+            if (isWeb3Enabled) {
+                await getOwnedAssets()
+                await getAssets()
+            }
+        })()
+    }, [isWeb3Enabled, assetsData, assetsDataIsLoading])
+
+    const handleSetUsername = () => {
+        if (user) {
+            if (nickname) {
+                user.set('nickname', nickname)
+                user.save()
+                setNickname('')
+            } else {
+                console.log("Can't set empty nickname")
+            }
+        } else {
+            console.log('No user')
         }
     }
 
@@ -114,7 +128,7 @@ export const AmazonProvider = ({ children }) => {
                 // const query = new Moralis.Query('_User')
                 // const results = await query.find()
 
-                const res = userData[0].add('ownedAsset', {
+                const res = userData[0].add('ownedAssets', {
                 ...asset,
                 purchaseDate: Date.now(),
                 etherscanLink: `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
@@ -167,6 +181,21 @@ export const AmazonProvider = ({ children }) => {
         }
     }
 
+    const getOwnedAssets = async () => {
+        try {
+          // let query = new Moralis.Query('_User')
+          // let results = await query.find()
+            if (userData[0]) {
+                setOwnedItems(prevItems => [
+                ...prevItems,
+                userData[0].attributes.ownedAsset,
+                ])
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <AmazonContext.Provider
             value = {{
@@ -177,6 +206,7 @@ export const AmazonProvider = ({ children }) => {
                 handleSetUsername,
                 assets,
                 balance,
+                getBalance,
                 setTokenAmount,
                 tokenAmount,
                 amountDue,
@@ -188,9 +218,10 @@ export const AmazonProvider = ({ children }) => {
                 currentAccount,
                 buyTokens,
                 buyAsset,
-                getBalance,
+                recentTransactions,
+                ownedItems,
             }}
-        > 
+        >
             { children }
         </AmazonContext.Provider>
     )
