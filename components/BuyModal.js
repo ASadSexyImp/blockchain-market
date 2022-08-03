@@ -28,7 +28,7 @@ const BuyModal = ({close}) => {
         setIsLoading,
         etherscanLink,
         setEtherscanLink,
-        buyToken,
+        buyTokens,
     } = useContext(AmazonContext)
 
     useEffect(() => {
