@@ -164,11 +164,11 @@ export const AmazonProvider = ({ children }) => {
             },
         }
         const transaction = await Moralis.executeFunction(options)
-        const receipt = await transaction.wait()
+        const receipt = await transaction.wait(4)
         setIsLoading(false)
         console.log(receipt)
         setEtherscanLink(
-            `https://ropsten.etherscan.io/tx/${receipt.transactionHash}`,
+            `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
         )
     }
 
