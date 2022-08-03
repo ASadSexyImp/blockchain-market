@@ -168,7 +168,7 @@ export const AmazonProvider = ({ children }) => {
         setIsLoading(false)
         console.log(receipt)
         setEtherscanLink(
-            `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
+            `https://ropsten.etherscan.io/tx/${receipt.transactionHash}`,
         )
     }
 
