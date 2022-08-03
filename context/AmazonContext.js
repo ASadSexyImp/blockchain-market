@@ -145,7 +145,7 @@ export const AmazonProvider = ({ children }) => {
 
     const buyTokens = async() => {
         if (!isAuthenticated) {
-            await authenticate()
+            await connectWallet()
         }
 
         const amount = ethers.BigNumber.from(tokenAmount)
@@ -164,7 +164,7 @@ export const AmazonProvider = ({ children }) => {
             },
         }
         const transaction = await Moralis.executeFunction(options)
-        const receipt = await transaction.wait(4)
+        const receipt = await transaction.wait()
         setIsLoading(false)
         console.log(receipt)
         setEtherscanLink(
